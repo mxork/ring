@@ -101,7 +101,7 @@ pub mod io;
 
 mod cpu;
 pub mod digest;
-mod ec;
+pub mod ec;
 mod endian;
 pub mod error;
 pub mod hkdf;
