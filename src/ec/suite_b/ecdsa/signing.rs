@@ -128,6 +128,15 @@ impl KeyPair {
         Ok(Self::new(alg, key_pair))
     }
 
+    /// Derive pubkey from private.
+    pub fn from_private_key(
+        alg: &'static Algorithm, private_key: untrusted::Input,
+    ) -> Result<Self, error::KeyRejected> {
+        let key_pair =
+            ec::suite_b::key_pair_from_bytes_private(alg.curve, private_key, cpu::features())?;
+        Ok(Self::new(alg, key_pair))
+    }
+
     fn new(alg: &'static Algorithm, key_pair: ec::KeyPair) -> Self {
         let (seed, public_key) = key_pair.split();
         let d = private_key::private_key_as_scalar(alg.private_key_ops, &seed);
