@@ -69,7 +69,27 @@ impl signature::VerificationAlgorithm for Algorithm {
 }
 
 impl Algorithm {
+    /// Verify signature over a given digest.
+    ///
+    /// `verify_digest` the name of an existing private method that,
+    /// confusingly, takes a Scalar, not a digest::Digest.
+    pub fn verify_digest_actual(
+        &self, public_key: untrusted::Input, h: digest::Digest, signature: untrusted::Input,
+    ) -> Result<(), error::Unspecified> {
+        if h.algorithm() != self.digest_alg {
+            panic!(
+                "attempt to use digest algorithm {:?} in verify expecting {:?}",
+                h.algorithm(),
+                self.digest_alg,
+           )
+        }
+        let scalar_ops = self.ops.scalar_ops;
+        let e = digest_scalar(scalar_ops, h);
+        self.verify_digest(public_key, e, signature)
+    }
+
     /// This is intentionally not public.
+    /// :hack now it is.
     fn verify_digest(
         &self, public_key: untrusted::Input, e: Scalar, signature: untrusted::Input,
     ) -> Result<(), error::Unspecified> {
